@@ -4,12 +4,15 @@ import { useParams } from 'react-router-dom';
 import {NFT_MP_BUY_API, NFT_MP_LIST_API, NFT_MP_UNLIST_API} from './Constant';
 import NetworkProvider from './context/NetworkProvider';
 import { signAndConfirmTransactionFe } from './utilityfunc';
+import Swal from 'sweetalert2'
+import lockIcon  from './assets/padlock.png'
+import Loading from './components/Loading';
 // Trang hiện thị chi tiết 1 NFT (theo địa chỉ của NFT, hiện thị nút mua, bán và ngừng bán)
 
 const UnSellNFTDetail = () => {
     const { network,wallID} = useContext(NetworkProvider);
     const [input, setInput] = useState(0.0001)
-    
+    const [loading, setLoading] = useState(false)
     const [dusername, setDUserName] = useState("");
     const [dpass, setDPass] = useState("");
     const [decyptAccept, setDecyptAccept] = useState(false);
@@ -18,6 +21,7 @@ const UnSellNFTDetail = () => {
     useEffect(() => {
         const fetchData = async () => {  
         try {
+            setLoading(true)
             var jsonInput = JSON.stringify({
                 "network": network,
                 "token_address": id,
@@ -49,8 +53,11 @@ const UnSellNFTDetail = () => {
                         const descriptionJson = JSON.parse(result.description)
                         result.username = descriptionJson.username
                         result.password = descriptionJson.password
+                        result.description = descriptionJson.description
                     } catch (error) {
                         console.error(error);
+                        result.username = ""
+                        result.password = ""
                     }
                     response.data.result = result;
                     
@@ -71,14 +78,17 @@ const UnSellNFTDetail = () => {
                 } else {
                     console.log("success: false");
                 }
+                setLoading(false)
             })
             // Catch errors if any
             .catch((err) => {
-            console.warn(err);
-            // setStatus("success: false");
+                console.warn(err);
+                // setStatus("success: false");
+                setLoading(false)
             });
         } catch (error) {
             console.error(error);
+            setLoading(false)
         }
         }
         fetchData();
@@ -96,9 +106,12 @@ const UnSellNFTDetail = () => {
                 console.log("Signature ",signature);
                 console.log("result ",result);
                 if(signature.err === null)
-                {
-                    // setMinted(saveMinted);
-                    // setStatus("success: Successfully Signed and Minted.");
+                {   
+                    Swal.fire({
+                    title: "Success",
+                    text: "Success!",
+                    icon: "success"
+                    });
                 }
                 }
             await axios({
@@ -150,8 +163,11 @@ const UnSellNFTDetail = () => {
                 console.log("result ",result);
                 if(signature.err === null)
                 {
-                    // setMinted(saveMinted);
-                    // setStatus("success: Successfully Signed and Minted.");
+                    Swal.fire({
+                        title: "Success",
+                        text: "Success!",
+                        icon: "success"
+                        });
                 }
             }
             await axios({
@@ -270,23 +286,35 @@ const UnSellNFTDetail = () => {
         setInput(e.target.value)
       }
    console.log(data)
+   if(loading){
+    return <Loading/>
+   }
   return (
-    <div className='text-center mx-[200px]'>
-        <div className='p-5'> 
+    <div className='mx-[200px]'>
+        <div className='p-5 font-bold text-[45px] text-center'> 
             <p>Chi tiết sản phẩm </p>
         </div>
-        <div className='grid grid-cols-2 gap-6'>
+        
+        <div className='grid grid-cols-2 gap-6 bg-slate-300 px-[30px] py-[90px] rounded-lg'>
             <div>
-                <img className='w-[600px] h-[330px]' src={data.image_uri}/>
+                <img onClick={handleClick} className='w-[600px] h-[330px]' src={data.image_uri}/>
             </div>
-            <div>
+            <div className='bg-slate-600 p-3 rounded-lg text-slate-100'>
+            <div className='opacity-40 hover:opacity-100' onClick={handleClick}>
+                <img className='mx-auto w-[90px]' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfTxbv0TsVFXJ5wcG6bM_Bla80P3yWLoPLvzqXL0lKPLoNlvtJq9IfuacIcO_v0n46U80&usqp=CAU"/>
+            </div>
                 {/* <p>Giá sản phẩm : {data.price} Sol</p> */}
-                <p>Loại sản phẩm : {data.name}</p>
-                <p>Chủ sản phẩm : {data.owner}</p>
-                <div className='px-3 py-2 bg-green-300' onClick={handleClick}>
+                <p className='px-3 py-2 font-semibold'>Loại sản phẩm : {data.name}</p>
+                <p className='px-3 py-2 font-semibold'>Chủ sản phẩm : {data.owner}</p>
+                <div className='px-3 py-2 my-3 rounded-lg bg-green-300' onClick={handleClick}>
                     {decyptAccept ? (
-                        <><p>Tài khoản : {dusername}</p>
-                        <p>Mật khẩu : {dpass} </p></>
+                        <div className='grid grid-cols-2' >
+                            <div>
+                                <p>Tài khoản : {dusername}</p>
+                                <p>Mật khẩu : {dpass} </p>
+                            </div>
+                            
+                        </div>
                     ): (
                         <><p>Tài khoản : {data?.username}</p>
                         <p>Mật khẩu : {data?.password} </p></>
@@ -294,9 +322,10 @@ const UnSellNFTDetail = () => {
                     
                 </div>
                 {/* {!(wallID == data.seller_address) && <button className='bg-green-500 p-3 rounded-lg m-3' onClick={buyClick}>Mua</button>} */}
-                <input type="text" className="border-[10px] h-18 border-solid" placeholder="Enter Your Symbol" value={input} onChange={(e) => setInput(e.target.value)} required />
+                <input type="text" className="text-black border-[10px] h-18 border-solid" placeholder="Enter Your Symbol" value={input} onChange={(e) => setInput(e.target.value)} required />
 
                 {/* <input className='' type='number' value="0.00001"/> */}
+            
                 {(wallID == data.owner) && <button className='bg-red-500 p-3 rounded-lg m-3' onClick={handleSellClick}>Bán</button>}
                 
                 {/* {(wallID == data.seller_address) && <button className='bg-violet-500 p-3 rounded-lg m-3' onClick={stopSellClick}>Ngừng bán</button>} */}

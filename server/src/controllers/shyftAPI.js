@@ -23,17 +23,38 @@ const NFT_MP_ACTIVE_LIST_API1 = "https://api.shyft.to/sol/v1/marketplace/active_
 const NFT_MP_ACTIVE_LIST_API2 = "https://api.shyft.to/sol/v2/marketplace/active_listings";
 const NFT_MP_BUY_API = "https://api.shyft.to/sol/v1/marketplace/buy";
 
-const ADMIN_PUBLIC_KEY = "d1r6aeMX56xUMMKaw6LJrMk3irJoaLbiwGy4iMLzjuL";
+// old marketplace address for admin wallet
+// const marketplace_address = "62iFzJjZ8W2KM3WCKApQPvdb5a35sJz8k5WTKdXsHtRx"
+// const ADMIN_PUBLIC_KEY = "d1r6aeMX56xUMMKaw6LJrMk3irJoaLbiwGy4iMLzjuL";
+
+// new marketplace address for sender wallet
+const marketplace_address = "D7a47hBTijrXxGiX6BCqLGkWgxg7ES1kDYkFs8hzCNTW"
+const ADMIN_PUBLIC_KEY = "CGhW9ocFVzauiAd6M3LwxdcvTkW2o6p8GPLwPCjo2RvH";
+
 const MP_FEE = 0.00001
 const service_charge = {
     "receiver": ADMIN_PUBLIC_KEY,
     "amount": MP_FEE
 }
 
-const marketplace_address = "62iFzJjZ8W2KM3WCKApQPvdb5a35sJz8k5WTKdXsHtRx"
+
+
+function encrypt(text) {
+	let etext = '';
+	const num = 5;
+	for (let i = 0; i < text.length; i++) {
+		etext += String.fromCharCode(text.charCodeAt(i) + 1 + (i % (num + i)));
+	}
+	return etext;
+}
 
 function decrypt(text) {
-    return text.replace("enc_", "");
+	let dtext = '';
+    const num = 5;
+	for (let i = 0; i < text.length; i++) {
+		dtext += String.fromCharCode(text.charCodeAt(i) - 1 - (i % (num + i)));
+	}
+	return dtext;
 }
 
 // input: network, address, nft_address, username, password

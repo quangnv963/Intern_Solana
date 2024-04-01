@@ -4,12 +4,15 @@ import { useParams } from 'react-router-dom';
 import {NFT_MP_BUY_API, NFT_MP_LIST_API, NFT_MP_UNLIST_API} from './Constant';
 import NetworkProvider from './context/NetworkProvider';
 import { signAndConfirmTransactionFe } from './utilityfunc';
+import Swal from 'sweetalert2'
+import Loading from './components/Loading';
+
 // Trang hiện thị chi tiết 1 NFT (theo địa chỉ của NFT, hiện thị nút mua, bán và ngừng bán)
 
 const SellNFTDetail = () => {
     const { network, wallID} = useContext(NetworkProvider);
     const [data, setData] = useState({});
-
+    const [loading, setLoading] = useState(false)
     const [dusername, setDUserName] = useState("");
     const [dpass, setDPass] = useState("");
     const [decyptAccept, setDecyptAccept] = useState(false);
@@ -20,6 +23,7 @@ const SellNFTDetail = () => {
         const fetchData = () => {
         
         try {
+            setLoading(true)
             var jsonInput = JSON.stringify({
                 "network": network,
                 "list_state": id,
@@ -52,6 +56,7 @@ const SellNFTDetail = () => {
                         const descriptionJson = JSON.parse(result.nft.description)
                         result.username = descriptionJson.username
                         result.password = descriptionJson.password
+                        result.description = descriptionJson.description
                     } catch (error) {
                         console.error(error);
                     }
@@ -72,6 +77,7 @@ const SellNFTDetail = () => {
                         console.log("set isOwner ");
                     }
                     setData(responseData.result)
+                    setLoading(false)
                 } else {
                     console.log("success: false");
                 }
@@ -87,8 +93,7 @@ const SellNFTDetail = () => {
         }
         }
         fetchData();
-    }, []);
-
+    }, [network]);
 
     const buyClick = async () => {
         try {
@@ -147,7 +152,6 @@ const SellNFTDetail = () => {
     };
 
 
-
     const stopSellClick = async () => {
         try {
             var jsonInput = JSON.stringify({
@@ -163,8 +167,11 @@ const SellNFTDetail = () => {
                 console.log("result ",result);
                 if(signature.err === null)
                 {
-                    // setMinted(saveMinted);
-                    // setStatus("success: Successfully Signed and Minted.");
+                    Swal.fire({
+                        title: "Success",
+                        text: "Success!",
+                        icon: "success"
+                        });
                 }
                 }
             
@@ -195,10 +202,20 @@ const SellNFTDetail = () => {
             // Catch errors if any
             .catch((err) => {
             // setStatus("success: false");
+            Swal.fire({
+                title: "Error",
+                text: "Lỗi hệ thống, hãy thử lại sau!",
+                icon: "error"
+                });
             });
         } catch (error) {
             console.error(error);
-        }
+            Swal.fire({
+                title: "Error",
+                text: "Lỗi hệ thống, hãy thử lại sau!",
+                icon: "error"
+                });
+            }
     };
 
     const decode = async (wallID, mint, username, password) =>{
@@ -275,40 +292,43 @@ const SellNFTDetail = () => {
         console.log("new ", newDUserName)
         console.log("new ", newDPass)
         console.log("new ", newDecyptAccept)
-      }
+    }
+    if(loading){
+        <Loading/>
+    }
+    console.log("data",data)
   
-  console.log("data",data)
-  return (
-    <div className=' mx-[200px]'>
-        <div className='p-5 text-center'> 
-            <p>Chi tiết sản phẩm </p>
-        </div>
-        <div className='grid grid-cols-2 gap-6'>
-            <div>
-                <img className='w-[600px] h-[330px]' src={data?.nft?.image_uri}/>
+    return (
+        <div className=' mx-[200px]'>
+            <div className='p-5 '> 
+                <p>Chi tiết sản phẩm </p>
             </div>
-            <div>
-                <p className='my-2'>Giá sản phẩm : {data.price} Sol</p>
-                <p className='my-2'>Loại sản phẩm : {data?.nft?.name}</p>
-                <p className='my-2'>Chủ sản phẩm : {data?.seller_address}</p>
-                <button className='my-6 px-3 py-2 bg-green-300 w-[300px] rounded-xl' onClick={handleClick}>
-                    {decyptAccept ? (
-                        <><p>Tài khoản :{dusername}</p>
-                        <p>Mật khẩu : {dpass} </p></>
-                    ): (
-                        <><p>Tài khoản : {data?.username}</p>
-                        <p>Mật khẩu : {data?.password} </p></>
-                    )}
-                    
-                </button>
-                {!(wallID == data.seller_address) && <div><button className='bg-green-500 p-3 rounded-lg opacity-70 hover:opacity-100 my-2' onClick={buyClick}>Mua</button></div>}
-                {/* {(wallID == data.seller_address) && <button className='bg-red-500 p-3 rounded-lg m-3' onClick={sellClick}>Bán</button>} */}
-                {(wallID == data.seller_address) && <button className='bg-violet-500 p-3 rounded-lg m-3' onClick={stopSellClick}>Ngừng bán</button>}
+            <div className='grid grid-cols-2 gap-6 bg-slate-600 p-3 rounded-lg'>
+                <div>
+                    <img className='w-[600px] h-[330px]' src={data?.nft?.image_uri}/>
+                </div>
+                <div>
+                    <p className='my-2'>Giá sản phẩm : {data.price} Sol</p>
+                    <p className='my-2'>Loại sản phẩm : {data?.nft?.name}</p>
+                    <p className='my-2'>Chủ sản phẩm : {data?.seller_address}</p>
+                    <button className='my-6 px-3 py-2 bg-green-300 w-[300px] rounded-xl' onClick={handleClick}>
+                        {decyptAccept ? (
+                            <><p>Tài khoản :{dusername}</p>
+                            <p>Mật khẩu : {dpass} </p></>
+                        ): (
+                            <><p>Tài khoản : {data?.username}</p>
+                            <p>Mật khẩu : {data?.password} </p></>
+                        )}
+                        
+                    </button>
+                    {!(wallID == data.seller_address) && <div><button className='bg-green-500 p-3 rounded-lg opacity-70 hover:opacity-100 my-2' onClick={buyClick}>Mua</button></div>}
+                    {/* {(wallID == data.seller_address) && <button className='bg-red-500 p-3 rounded-lg m-3' onClick={sellClick}>Bán</button>} */}
+                    {(wallID == data.seller_address) && <button className='bg-violet-500 p-3 rounded-lg m-3' onClick={stopSellClick}>Ngừng bán</button>}
+                </div>
             </div>
         </div>
-    </div>
-    
-  )
+        
+    )
 }
 
 export default SellNFTDetail

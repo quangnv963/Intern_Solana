@@ -58,12 +58,13 @@ const Header = () => {
                if (phantom) {
                     console.log('start disconnect phantom');
                     await phantom.disconnect();
-                    console.log(phantom)
                     // console.log(phantom.publicKey.toString())
                     if (!phantom.publicKey) {
+                         setWallID(null)
                          setConnStatus(false);
                     }
                     console.log('done disconnect phantom');
+                    console.log(wallID)
                }
                     
           } catch(err) {
@@ -72,7 +73,14 @@ const Header = () => {
           
      }
 
-
+     const wallID_Render = (string) =>{
+          if(string.length > 6){
+              return string.substring(0, 6) + '...';
+          } 
+          else {
+              return string;
+          }
+          }
 
 
 
@@ -99,7 +107,7 @@ const Header = () => {
             <div className="font-semibold mx-10 text-[18px]">
                 
                 {connStatus ? ( <div>
-                    <p>ID Ví : {wallID}</p>
+                    <p>ID Ví : {wallID_Render(wallID)}</p>
                     <button className="bg-red-600 py-2 px-3 rounded-xl"onClick={solanaDisconect}>Disconnect</button>
                 </div>) : <></>}
                 

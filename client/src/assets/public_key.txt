@@ -1,0 +1,27 @@
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+bJSkqOPgAqIEi/3HYGF5ypcc
++zvWc4jHGK1VtViE4q0G8SLoPJmzB1ehjva08tLXGS0gYkHOHFoi72N4ZQ6knzMb
+4TtBhq4DoPwL23kGN+quDZpLY40E6a6wC9Y2l4RoHoIS7SsQZ1renX6HWEVsjoLv
+Eew52oD5104wTkShkQIDAQAB
+-----END PUBLIC KEY-----
+
+
+"eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+
+ "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
