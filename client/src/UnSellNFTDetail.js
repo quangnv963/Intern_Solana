@@ -1,23 +1,26 @@
 import axios from 'axios';
 import React, { useState, useEffect, useContext } from 'react'
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {NFT_MP_BUY_API, NFT_MP_LIST_API, NFT_MP_UNLIST_API} from './Constant';
 import NetworkProvider from './context/NetworkProvider';
 import { signAndConfirmTransactionFe } from './utilityfunc';
 import Swal from 'sweetalert2'
 import lockIcon  from './assets/padlock.png'
 import Loading from './components/Loading';
+import LoadingAction from './components/LoadingAction';
 // Trang hiện thị chi tiết 1 NFT (theo địa chỉ của NFT, hiện thị nút mua, bán và ngừng bán)
 
 const UnSellNFTDetail = () => {
     const { network,wallID} = useContext(NetworkProvider);
     const [input, setInput] = useState(0.0001)
     const [loading, setLoading] = useState(false)
+    const [loadingAction, setLoadingAction] = useState(false)
     const [dusername, setDUserName] = useState("");
     const [dpass, setDPass] = useState("");
     const [decyptAccept, setDecyptAccept] = useState(false);
     const [data, setData] = useState({});
     const {id} = useParams()
+    const navigate = useNavigate()
     useEffect(() => {
         const fetchData = async () => {  
         try {
@@ -151,10 +154,12 @@ const UnSellNFTDetail = () => {
 
     const sellClick = async () => {
         try {
+            console.log("price", typeof(input))
+            setLoading(true)
             var jsonInput = JSON.stringify({
                 "network": network,
                 "nft_address": id,
-                "price": input,
+                "price": parseFloat(input),
                 "seller_wallet": wallID,
             });
             console.log("sellClick input", jsonInput)
@@ -168,6 +173,8 @@ const UnSellNFTDetail = () => {
                         text: "Success!",
                         icon: "success"
                         });
+                    navigate(`/collection`)
+                    
                 }
             }
             await axios({
@@ -187,6 +194,7 @@ const UnSellNFTDetail = () => {
                 console.log(res);
                 if(res.data.success === true)
                 {
+                    setLoading(false)
                     const transaction = res.data.result.encoded_transaction;
                     const ret_result = await signAndConfirmTransactionFe(network, transaction, callback);
                     console.log(ret_result);
@@ -195,9 +203,21 @@ const UnSellNFTDetail = () => {
             // Catch errors if any
             .catch((err) => {
                 console.warn(err);
+                setLoading(false)
+                Swal.fire({
+                    title: "Error",
+                    text: "Hệ thống gặp lỗi, vui lòng thử lại sau!",
+                    icon: "error"
+                    });
             // setStatus("success: false");
             });
         } catch (error) {
+            setLoading(false)
+            Swal.fire({
+                title: "Error",
+                text: "Hệ thống gặp lỗi, vui lòng thử lại sau!",
+                icon: "error"
+                });
             console.error(error);
         }
     };
@@ -289,13 +309,14 @@ const UnSellNFTDetail = () => {
    if(loading){
     return <Loading/>
    }
+  
   return (
     <div className='mx-[200px]'>
         <div className='p-5 font-bold text-[45px] text-center'> 
             <p>Chi tiết sản phẩm </p>
         </div>
-        
-        <div className='grid grid-cols-2 gap-6 bg-slate-300 px-[30px] py-[90px] rounded-lg'>
+        {loadingAction && <LoadingAction/>}
+        <div className='grid grid-cols-2 gap-6 bg-slate-300 px-[30px] items-center py-[90px] rounded-lg'>
             <div>
                 <img onClick={handleClick} className='w-[600px] h-[330px]' src={data.image_uri}/>
             </div>
@@ -322,7 +343,7 @@ const UnSellNFTDetail = () => {
                     
                 </div>
                 {/* {!(wallID == data.seller_address) && <button className='bg-green-500 p-3 rounded-lg m-3' onClick={buyClick}>Mua</button>} */}
-                <input type="text" className="text-black border-[10px] h-18 border-solid" placeholder="Enter Your Symbol" value={input} onChange={(e) => setInput(e.target.value)} required />
+                <input type="number" step={0.0001} className="text-black border-[10px] h-18 border-solid" placeholder="Enter Your Symbol" value={input} onChange={(e) => setInput(e.target.value)} required />
 
                 {/* <input className='' type='number' value="0.00001"/> */}
             

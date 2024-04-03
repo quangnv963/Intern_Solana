@@ -87,7 +87,8 @@ const Header = () => {
      return (
     <div>
         <div className="grid grid-cols-6  items-center bg-blue-500 w-full py-9 px-[75px]">
-            <div className="w-[180px] mx-10"><img src="https://leagueofstore.com/cdn/shop/files/LEGEND_PNG_cropped_1200x1200.png?v=1614331610" alt="" /></div>
+            <div className="w-[180px] mx-10">
+               <Link to='/'><img src="https://leagueofstore.com/cdn/shop/files/LEGEND_PNG_cropped_1200x1200.png?v=1614331610" alt="" /></Link></div>
             {wallID && <button className="bg-yellow-300  py-3 rounded-lg w-50"><Link to='/collection'>My Collection</Link></button>}
             <div className="text-[24px] mx-10">
                 <Link className="text-black bg-yellow-300 p-3 rounded-lg hover:text-black opacity-60 hover:opacity-90" to="/create">Tạo sản phẩm</Link>

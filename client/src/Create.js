@@ -37,7 +37,7 @@ const Create = () => {
     const [loading, setLoading] = useState(false)
 	const [status, setStatus] = useState("Awaiting Upload");
 	const [dispResponse, setDispResp] = useState("");
-
+	const [schema, setSchema] = useState(false)
 	const [connStatus, setConnStatus] = useState(true);
 	// console.log("publicSenKey ", publicSenKey)
 	
@@ -55,11 +55,13 @@ const Create = () => {
 				icon: "success"
 			});
 			console.log("minted2", minted)
-			navigate(`/unsell/detail/${minted}`)
 		}
-		setDispResp(minted)
+		// setDispResp(minted)
 	  }
-
+	function isEmptyOrWhitespace(str) {
+		return !str.trim();
+	}
+	
 	const mintNow = (e) => {
 		setLoading(true)
 		e.preventDefault();
@@ -90,35 +92,48 @@ const Create = () => {
 
 		console.log("att ", att)
 		console.log(formData)
-		axios({
-			// url: NFT_CREATE_API, // https://api.shyft.to/sol/v1/nft/create_detach
-			url: "https://api.shyft.to/sol/v1/nft/create_detach",
-			method: "POST",
-			headers: {
-				"Content-Type": "multipart/form-data",
-				"x-api-key": "H4blfpiI4gcGXQOj", // 
-				Accept: "*/*",
-				"Access-Control-Allow-Origin": "*",
-			},
+		{
+		if(mota  == "" || username == ""  ||  password == "" || file == undefined || wallID == null){
+			setSchema(false)
+			setLoading(false)
+			Swal.fire({
+				title: "ERROR",
+				text: "Bạn tải ảnh và phải nhập đầy đủ các trường",
+				icon: "error"
+				});
+		}
+		else
+		{	
+			axios({
+				// url: NFT_CREATE_API, // https://api.shyft.to/sol/v1/nft/create_detach
+				url: "https://api.shyft.to/sol/v1/nft/create_detach",
+				method: "POST",
+				headers: {
+					"Content-Type": "multipart/form-data",
+					"x-api-key": "H4blfpiI4gcGXQOj", // 
+					Accept: "*/*",
+					"Access-Control-Allow-Origin": "*",
+				},
 
-			// Attaching the form data
-			data: formData,
-		})
-			// Handle the response from backend here
-			.then(async (res) => {
-				console.log(res);
-				if(res.data.success === true)
-				{
-					setLoading(false)
-					setStatus("success: Transaction Created. Signing Transactions. Please Wait.");
-					const transaction = res.data.result.encoded_transaction;
-					setSaveMinted(res.data.result.mint);
-					const ret_result = await signAndConfirmTransactionFe(network,transaction,callback);
-            		console.log(ret_result);
-					// setDispResp(res.data);
-				}
+				// Attaching the form data
+				data: formData,
 			})
-
+				// Handle the response from backend here
+				.then(async (res) => {
+					console.log(res);
+					if(res.data.success === true)
+					{
+						setLoading(false)
+						setStatus("success: Transaction Created. Signing Transactions. Please Wait.");
+						const transaction = res.data.result.encoded_transaction;
+						setSaveMinted(res.data.result.mint);
+						console.log("saveMinted ", saveMinted, res.data.result.mint);
+						const ret_result = await signAndConfirmTransactionFe(network,transaction,callback);
+						console.log(ret_result);
+						setDispResp(res.data);
+					}
+				})
+		
 			// Catch errors if any
 			.catch((err) => {
 				console.warn(err);
@@ -130,10 +145,11 @@ const Create = () => {
 					icon: "error"
 					});
 			});
-            console.log(network)
-
+		}
+        console.log(network)
+		}
 	}
-
+	console.log("saveMinted3", saveMinted)
 	return (
 		<div className="gradient-background">
 				{loading && <LoadingAction/>}
@@ -240,7 +256,7 @@ const Create = () => {
 								</tbody>
 							</table>
 							<div className="p-5 text-center">
-								<button type="submit" className="btn btn-success button-25" onClick={mintNow}>Submit</button>
+								  <button type="submit" className="btn btn-success button-25" onClick={mintNow}>Submit</button>
 							</div>
 						</div>
 					</form>
@@ -249,7 +265,7 @@ const Create = () => {
 					</div>
 				</div>)}
 
-				<div className="py-5">
+				{/* <div className="py-5">
 					<h2 className="text-center pb-3">Response</h2>
 					<div className="status text-center text-info p-3"><b>{status}</b></div>
 					<textarea
@@ -260,9 +276,9 @@ const Create = () => {
 						cols="30"
 						rows="10"
 					></textarea>
-				</div>
+				</div> */}
 				<div className="p-3 text-center">
-					{dispResponse && (<Link to={`/unsell/detail/${minted}`} target="_blank" className="btn btn-warning m-2 py-2 px-4">View on Explorer</Link>)}
+					{dispResponse && (<Link to={`/unsell/detail/${saveMinted}`} target="_blank" className="btn btn-warning m-2 py-2 px-4">View on Detail Product</Link>)}
 				</div>
 			</div>
 		</div>

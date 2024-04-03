@@ -6,6 +6,7 @@ import NetworkProvider from './context/NetworkProvider';
 import { signAndConfirmTransactionFe } from './utilityfunc';
 import Swal from 'sweetalert2'
 import Loading from './components/Loading';
+import LoadingAction from './components/LoadingAction';
 
 // Trang hiện thị chi tiết 1 NFT (theo địa chỉ của NFT, hiện thị nút mua, bán và ngừng bán)
 
@@ -16,7 +17,7 @@ const SellNFTDetail = () => {
     const [dusername, setDUserName] = useState("");
     const [dpass, setDPass] = useState("");
     const [decyptAccept, setDecyptAccept] = useState(false);
-
+    const [loadingAction, setLoadingAction] = useState(false)
     const {id} = useParams()
 
     useEffect(() => {
@@ -97,7 +98,7 @@ const SellNFTDetail = () => {
 
     const buyClick = async () => {
         try {
-
+            setLoading(true)
             var jsonInput = JSON.stringify({
                 "network": network,
                 "nft_address": data.nft.mint,
@@ -137,6 +138,8 @@ const SellNFTDetail = () => {
                     const transaction = res.data.result.encoded_transaction;
                     const ret_result = await signAndConfirmTransactionFe(network,transaction,callback);
                     console.log(ret_result);
+                    setLoading(false)
+
                 }
             })
 
@@ -148,12 +151,15 @@ const SellNFTDetail = () => {
             });
         } catch (error) {
             console.error(error);
+            setLoading(false)
+
         }
     };
 
 
     const stopSellClick = async () => {
         try {
+            setLoadingAction(true)
             var jsonInput = JSON.stringify({
                 "network": network,
                 "list_state": id,
@@ -192,6 +198,7 @@ const SellNFTDetail = () => {
                 console.log(res);
                 if(res.data.success === true)
                 {
+                setLoadingAction(true)
                     const transaction = res.data.result.encoded_transaction;
                     const ret_result = await signAndConfirmTransactionFe(network,transaction,callback);
                     console.log(ret_result);
@@ -207,6 +214,9 @@ const SellNFTDetail = () => {
                 text: "Lỗi hệ thống, hãy thử lại sau!",
                 icon: "error"
                 });
+                setLoadingAction(true)
+
+            
             });
         } catch (error) {
             console.error(error);
@@ -214,7 +224,9 @@ const SellNFTDetail = () => {
                 title: "Error",
                 text: "Lỗi hệ thống, hãy thử lại sau!",
                 icon: "error"
-                });
+                })
+                setLoadingAction(true)
+
             }
     };
 
@@ -303,6 +315,7 @@ const SellNFTDetail = () => {
             <div className='p-5 '> 
                 <p>Chi tiết sản phẩm </p>
             </div>
+            {loadingAction && <LoadingAction/>}
             <div className='grid grid-cols-2 gap-6 bg-slate-600 p-3 rounded-lg'>
                 <div>
                     <img className='w-[600px] h-[330px]' src={data?.nft?.image_uri}/>

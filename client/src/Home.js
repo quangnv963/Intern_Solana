@@ -71,7 +71,7 @@ const Home = () => {
 
   return (
     <div className='mx-20'>
-        <h1 className='text-center p-5'></h1>
+        <h1 className='text-center p-5 text-xl font-bold'>Sản phẩm Account đang bán</h1>
     <div className='grid grid-cols-4 gap-3 '> 
             {data.map((item, i) => (
                 <Link className='bg-slate-200 rounded-xl relative px-3 pb-20' to={`/detail/${item.list_state}`}>
